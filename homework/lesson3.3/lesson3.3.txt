@@ -1,0 +1,23 @@
+1. Вырезка из результата команды
+
+uname({sysname="Linux", nodename="vagrant", ...}) = 0
+stat("/home/vagrant", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat(".", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/home", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/home/vagrant", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/tmp", {st_mode=S_IFDIR|S_ISVTX|0777, st_size=4096, ...}) = 0
+getpid()                                = 1148
+getppid()                               = 1145
+getpid()                                = 1148
+getpgrp()                               = 1145
+ioctl(2, TIOCGPGRP, [1145])             = 0
+rt_sigaction(SIGCHLD, {sa_handler=0x55a94cd02aa0, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f676e7ef210}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f676e7ef210}, 8) = 0
+prlimit64(0, RLIMIT_NPROC, NULL, {rlim_cur=3580, rlim_max=3580}) = 0
+rt_sigprocmask(SIG_BLOCK, NULL, [], 8)  = 0
+rt_sigprocmask(SIG_BLOCK, NULL, [], 8)  = 0
+stat("/tmp", {st_mode=S_IFDIR|S_ISVTX|0777, st_size=4096, ...}) = 0
+chdir("/tmp")    
+
+2. /usr/share/misc/magic.mgc
+
+3. 
