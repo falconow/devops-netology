@@ -1,0 +1,45 @@
+1. 
+
+	Содержимое unit файла
+
+root@vagrant:~# cat /etc/systemd/system/node_exporter.service
+[Unit]
+Description=node_exporter
+
+[Service]
+Type=simple
+User=root
+Group=root
+EnvironmentFile=-/etc/default/node
+ExecStart=/usr/local/bin/node_exporter
+
+[Install]
+WantedBy=multi-user.target
+root@vagrant:~#
+
+	Статус службы
+	
+root@vagrant:~# systemctl status node_exporter.service
+● node_exporter.service - node_exporter
+     Loaded: loaded (/etc/systemd/system/node_exporter.service; enabled; vendor preset: enabled)
+     Active: active (running) since Thu 2021-03-25 18:39:27 UTC; 3min 49s ago
+   Main PID: 604 (node_exporter)
+      Tasks: 3 (limit: 1074)
+     Memory: 13.0M
+     CGroup: /system.slice/node_exporter.service
+             └─604 /usr/local/bin/node_exporter
+
+Mar 25 18:39:27 vagrant node_exporter[604]: level=info ts=2021-03-25T18:39:27.812Z caller=node_exporter.go:113 collector=thermal_zone
+Mar 25 18:39:27 vagrant node_exporter[604]: level=info ts=2021-03-25T18:39:27.812Z caller=node_exporter.go:113 collector=time
+Mar 25 18:39:27 vagrant node_exporter[604]: level=info ts=2021-03-25T18:39:27.812Z caller=node_exporter.go:113 collector=timex
+Mar 25 18:39:27 vagrant node_exporter[604]: level=info ts=2021-03-25T18:39:27.812Z caller=node_exporter.go:113 collector=udp_queues
+Mar 25 18:39:27 vagrant node_exporter[604]: level=info ts=2021-03-25T18:39:27.812Z caller=node_exporter.go:113 collector=uname
+Mar 25 18:39:27 vagrant node_exporter[604]: level=info ts=2021-03-25T18:39:27.812Z caller=node_exporter.go:113 collector=vmstat
+Mar 25 18:39:27 vagrant node_exporter[604]: level=info ts=2021-03-25T18:39:27.812Z caller=node_exporter.go:113 collector=xfs
+Mar 25 18:39:27 vagrant node_exporter[604]: level=info ts=2021-03-25T18:39:27.812Z caller=node_exporter.go:113 collector=zfs
+Mar 25 18:39:27 vagrant node_exporter[604]: level=info ts=2021-03-25T18:39:27.812Z caller=node_exporter.go:195 msg="Listening on" address=:9100
+Mar 25 18:39:27 vagrant node_exporter[604]: level=info ts=2021-03-25T18:39:27.816Z caller=tls_config.go:191 msg="TLS is disabled." http2=false
+root@vagrant:~#
+
+
+
