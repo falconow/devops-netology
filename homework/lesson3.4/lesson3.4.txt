@@ -47,7 +47,7 @@ root@vagrant:~#
 	--collector.cpu  --collector.diskstats  --collector.interrupts  --collector.mdadm  --collector.meminfo  --collector.network_route
 	
 	
-3.
+3. Сделан скриншот
 
 
 
@@ -62,9 +62,11 @@ root@vagrant:~#
 	
 	
 	
-5.
-
-
+5.  root@vagrant:~# ulimit -n
+	1024
+	
+	root@vagrant:~# sysctl fs.nr_open
+	fs.nr_open = 1048576
 
 
 
@@ -80,9 +82,5 @@ root@vagrant:/#
 
 
 
-
-
-
-
-
-
+7.:(){ :|:& };: команда которая заполняет память. Убивает сервак. Систему стабилизировал механизм cgroup. 
+	Посмотрел его man но не смог найти параметры по умолчанию
