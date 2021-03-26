@@ -43,3 +43,46 @@ root@vagrant:~#
 
 
 
+2. Ознакомился с метриками с помощью curl http://localhost:9100/metrics
+	--collector.cpu  --collector.diskstats  --collector.interrupts  --collector.mdadm  --collector.meminfo  --collector.network_route
+	
+	
+3.
+
+
+
+4. Можно, вырезка и команды  dmesg -T
+
+	[Fri Mar 26 07:53:46 2021] DMI: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+	[Fri Mar 26 07:53:46 2021] Hypervisor detected: KVM
+	
+	[Fri Mar 26 07:53:48 2021] systemd[1]: Detected virtualization oracle.
+	[Fri Mar 26 07:53:48 2021] systemd[1]: Detected architecture x86-64.
+	
+	
+	
+	
+5.
+
+
+
+
+
+6. root@vagrant:/# nsenter --target 1077 --pid --mount
+root@vagrant:/#
+root@vagrant:/# ps aux
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root           1  0.0  0.4   9836  4064 pts/1    S    12:47   0:00 /bin/bash
+root           9  0.0  0.0   8076   532 pts/1    S+   12:47   0:00 sleep 1h
+root          10  0.0  0.4   9836  4036 pts/0    S    12:48   0:00 -bash
+root          19  0.0  0.3  11492  3312 pts/0    R+   12:48   0:00 ps aux
+root@vagrant:/#
+
+
+
+
+
+
+
+
+
