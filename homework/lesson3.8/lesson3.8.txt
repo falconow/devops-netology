@@ -1,5 +1,152 @@
 1. Зная Схему переходов состояния соединения TCP, думаю InActConn отображает соединения находящиеся в состоянии TIME_WAIT.
 
 
-2. 
+
+2. Создадим 5 виртуальных машин netology{1..5}, с ip адресами 172.28.128.{10,20,30,40,50}
+
+Сервер 1 и 2 будут риалами, на 3 и 4 сервере настраиваем keepalived и ipvs, с 5 сервера будем отправлять запросы
+
+Проверим что все серверы нам доступны:
+root@netology5:~# curl -I -s 172.28.128.{10,20,30,40}:80 | grep HTTP
+HTTP/1.1 200 OK
+HTTP/1.1 200 OK
+HTTP/1.1 200 OK
+HTTP/1.1 200 OK
+root@netology5:~#
+
+
+Далее устанавливаем на 3 и 4 сервере keepalived и ipvs.
+
+
+Конфиг keepalived на 3 сервере:
+
+vrrp_script chk_nginx {
+    script "systemctl status nginx"
+    interval 2
+}
+
+vrrp_instance VI_1 {
+    state MASTER 
+    interface eth1
+    virtual_router_id 33
+    priority 100
+    advert_int 1
+    authentication {
+	auth_type PASS
+	auth_pass netology_secret
+    }
+    virtual_ipaddress {
+	172.28.128.200/24 dev eth1
+    }    
+    track_script {
+	chk_nginx
+    }
+}
+
+root@netology3:/etc/keepalived# systemctl status keepalived
+● keepalived.service - Keepalive Daemon (LVS and VRRP)
+     Loaded: loaded (/lib/systemd/system/keepalived.service; enabled; vendor preset: enabled)
+     Active: active (running) since Wed 2021-04-28 11:12:54 UTC; 3min 45s ago
+   Main PID: 23029 (keepalived)
+      Tasks: 2 (limit: 1074)
+     Memory: 1.7M
+     CGroup: /system.slice/keepalived.service
+             ├─23029 /usr/sbin/keepalived --dont-fork
+             └─23040 /usr/sbin/keepalived --dont-fork
+
+Apr 28 11:12:54 netology3 Keepalived_vrrp[23040]: Registering Kernel netlink command channel
+Apr 28 11:12:54 netology3 Keepalived_vrrp[23040]: Opening file '/etc/keepalived/keepalived.conf'.
+Apr 28 11:12:54 netology3 Keepalived_vrrp[23040]: WARNING - default user 'keepalived_script' for script execution does not exist - please create.
+Apr 28 11:12:54 netology3 Keepalived_vrrp[23040]: (Line 14) Truncating auth_pass to 8 characters
+Apr 28 11:12:54 netology3 Keepalived_vrrp[23040]: WARNING - script `systemctl` resolved by path search to `/usr/bin/systemctl`. Please specify full path.
+Apr 28 11:12:54 netology3 Keepalived_vrrp[23040]: SECURITY VIOLATION - scripts are being executed but script_security not enabled.
+Apr 28 11:12:54 netology3 Keepalived_vrrp[23040]: Registering gratuitous ARP shared channel
+Apr 28 11:12:54 netology3 Keepalived_vrrp[23040]: VRRP_Script(chk_nginx) succeeded
+Apr 28 11:12:54 netology3 Keepalived_vrrp[23040]: (VI_1) Entering BACKUP STATE
+Apr 28 11:12:57 netology3 Keepalived_vrrp[23040]: (VI_1) Entering MASTER STATE
+root@netology3:/etc/keepalived# 
+
+
+
+Проверяем поднялся ли адрес: 
+root@netology3:/etc/keepalived# ip -4 address | grep inet
+    inet 127.0.0.1/8 scope host lo
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic eth0
+    inet 172.28.128.30/24 scope global eth1
+    inet 172.28.128.200/24 scope global secondary eth1
+root@netology3:/etc/keepalived# 
+
+
+
+Конфиг keepalived на 4 сервере:
+
+root@netology4:/etc/keepalived# cat keepalived.conf 
+vrrp_script chk_nginx {
+    script "systemctl status nginx"
+    interval 2
+}
+
+vrrp_instance VI_1 {
+    state MASTER 
+    interface eth1
+    virtual_router_id 33
+    priority 50
+    advert_int 1
+    authentication {
+    auth_type PASS
+    auth_pass netology_secret
+    }
+    virtual_ipaddress {
+    172.28.128.200/24 dev eth1
+    }    
+    track_script {
+    chk_nginx
+    }
+}
+
+root@netology4:/etc/keepalived# systemctl status keepalived
+● keepalived.service - Keepalive Daemon (LVS and VRRP)
+     Loaded: loaded (/lib/systemd/system/keepalived.service; enabled; vendor preset: enabled)
+     Active: active (running) since Wed 2021-04-28 11:34:15 UTC; 20min ago
+   Main PID: 22856 (keepalived)
+      Tasks: 2 (limit: 1074)
+     Memory: 2.0M
+     CGroup: /system.slice/keepalived.service
+             ├─22856 /usr/sbin/keepalived --dont-fork
+             └─22862 /usr/sbin/keepalived --dont-fork
+
+Apr 28 11:34:15 netology4 Keepalived_vrrp[22862]: Registering Kernel netlink reflector
+Apr 28 11:34:15 netology4 Keepalived_vrrp[22862]: Registering Kernel netlink command channel
+Apr 28 11:34:15 netology4 Keepalived_vrrp[22862]: Opening file '/etc/keepalived/keepalived.conf'.
+Apr 28 11:34:15 netology4 Keepalived_vrrp[22862]: WARNING - default user 'keepalived_script' for script execution does not exist - please create.
+Apr 28 11:34:15 netology4 Keepalived_vrrp[22862]: (Line 14) Truncating auth_pass to 8 characters
+Apr 28 11:34:15 netology4 Keepalived_vrrp[22862]: WARNING - script `systemctl` resolved by path search to `/usr/bin/systemctl`. Please specify full path.
+Apr 28 11:34:15 netology4 Keepalived_vrrp[22862]: SECURITY VIOLATION - scripts are being executed but script_security not enabled.
+Apr 28 11:34:15 netology4 Keepalived_vrrp[22862]: Registering gratuitous ARP shared channel
+Apr 28 11:34:15 netology4 Keepalived_vrrp[22862]: VRRP_Script(chk_nginx) succeeded
+Apr 28 11:34:15 netology4 Keepalived_vrrp[22862]: (VI_1) Entering BACKUP STATE
+root@netology4:/etc/keepalived# 
+
+Адрес не поднялся, т.к. сервер находится в режиме slave
+root@netology4:/etc/keepalived# ip -4 address | grep inet
+    inet 127.0.0.1/8 scope host lo
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic eth0
+    inet 172.28.128.40/24 scope global eth1
+root@netology4:/etc/keepalived# 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
