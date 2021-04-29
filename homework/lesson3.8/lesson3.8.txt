@@ -136,6 +136,267 @@ root@netology4:/etc/keepalived#
 
 
 
+Проверям работает ли keepalived:
+root@netology3:/etc/keepalived# ip -4 address | grep inet
+    inet 127.0.0.1/8 scope host lo
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic eth0
+    inet 172.28.128.30/24 scope global eth1
+    inet 172.28.128.200/24 scope global secondary eth1
+root@netology3:/etc/keepalived# 
+root@netology3:/etc/keepalived# systemctl stop keepalived
+root@netology3:/etc/keepalived# 
+root@netology3:/etc/keepalived# ip -4 address | grep inet
+    inet 127.0.0.1/8 scope host lo
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic eth0
+    inet 172.28.128.30/24 scope global eth1
+root@netology3:/etc/keepalived#
+
+ip 172.28.128.200/24 перекинулся на netology4, все работает.
+root@netology4:/etc/keepalived# ip -4 address | grep inet
+    inet 127.0.0.1/8 scope host lo
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic eth0
+    inet 172.28.128.40/24 scope global eth1
+    inet 172.28.128.200/24 scope global secondary eth1
+root@netology4:/etc/keepalived#
+
+
+Далее настроим ipvs на netology3 и netology4:
+
+root@netology3:/etc/keepalived# ipvsadm -Ln
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port Scheduler Flags
+  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
+TCP  172.28.128.200:80 rr
+  -> 172.28.128.10:80             Route   1      0          0         
+  -> 172.28.128.20:80             Route   1      0          0         
+root@netology3:/etc/keepalived# 
+
+root@netology4:/etc/keepalived# ipvsadm -Ln
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port Scheduler Flags
+  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
+TCP  172.28.128.200:80 rr
+  -> 172.28.128.10:80             Route   1      0          0         
+  -> 172.28.128.20:80             Route   1      0          0         
+root@netology4:/etc/keepalived# 
+
+
+проверям работу
+
+root@netology1:~# wc -l /var/log/nginx/access.log
+2 /var/log/nginx/access.log
+root@netology1:~# 
+
+vagrant@netology2:~$ wc -l /var/log/nginx/access.log
+1 /var/log/nginx/access.log
+vagrant@netology2:~$ 
+
+root@netology3:/etc/keepalived# ipvsadm -Ln
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port Scheduler Flags
+  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
+TCP  172.28.128.200:80 rr
+  -> 172.28.128.10:80             Route   1      0          0         
+  -> 172.28.128.20:80             Route   1      0          0         
+root@netology3:/etc/keepalived# 
+
+root@netology4:/etc/keepalived# ipvsadm -Ln
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port Scheduler Flags
+  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
+TCP  172.28.128.200:80 rr
+  -> 172.28.128.10:80             Route   1      0          0         
+  -> 172.28.128.20:80             Route   1      0          0         
+root@netology4:/etc/keepalived#
+
+
+Запросы не идут, будем разбираться в чем дело
+
+Забыли добавить vip 172.28.128.200 на netology1 и netology2
+
+root@netology1:~# ip -4 addr | grep inet
+    inet 127.0.0.1/8 scope host lo
+    inet 172.28.128.200/32 scope global lo:200
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic eth0
+    inet 172.28.128.10/24 scope global eth1
+root@netology1:~# 
+
+
+root@netology2:~# ip -4 addr | grep inet
+    inet 127.0.0.1/8 scope host lo
+    inet 172.28.128.200/32 scope global lo:200
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic eth0
+    inet 172.28.128.20/24 scope global eth1
+root@netology2:~# wc -l /var/log/nginx/access.log
+
+
+Проверяем еще раз:
+До запроса:
+root@netology1:~# wc -l /var/log/nginx/access.log
+4 /var/log/nginx/access.log
+root@netology1:~# 
+
+root@netology2:~# wc -l /var/log/nginx/access.log
+4 /var/log/nginx/access.log
+root@netology2:~# 
+
+Запрос: 
+root@netology5:~# for i in {1..50}; do curl -I -s 172.28.128.200; done
+
+После запроса:
+root@netology1:~# wc -l /var/log/nginx/access.log
+29 /var/log/nginx/access.log
+root@netology1:~# 
+
+root@netology2:~# wc -l /var/log/nginx/access.log
+29 /var/log/nginx/access.log
+root@netology2:~# 
+
+root@netology3:/etc/nginx/sites-enabled# ipvsadm -Ln --stats
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port               Conns   InPkts  OutPkts  InBytes OutBytes
+  -> RemoteAddress:Port
+TCP  172.28.128.200:80                  60      350        0    23028        0
+  -> 172.28.128.10:80                   30      170        0    11214        0
+  -> 172.28.128.20:80                   30      180        0    11814        0
+root@netology3:/etc/nginx/sites-enabled# 
+
+root@netology4:/etc/keepalived# ipvsadm -Ln --stats
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port               Conns   InPkts  OutPkts  InBytes OutBytes
+  -> RemoteAddress:Port
+TCP  172.28.128.200:80                   0        0        0        0        0
+  -> 172.28.128.10:80                    0        0        0        0        0
+  -> 172.28.128.20:80                    0        0        0        0        0
+root@netology4:/etc/keepalived# 
+
+
+
+Остановим службу keepalived на netology3, имитируя потрею хоста:
+
+root@netology3:~# systemctl stop keepalived
+root@netology3:~# systemctl status keepalived
+● keepalived.service - Keepalive Daemon (LVS and VRRP)
+     Loaded: loaded (/lib/systemd/system/keepalived.service; enabled; vendor preset: enabled)
+     Active: inactive (dead) since Thu 2021-04-29 12:50:15 UTC; 5s ago
+    Process: 57407 ExecStart=/usr/sbin/keepalived --dont-fork $DAEMON_ARGS (code=exited, status=0/SUCCESS)
+   Main PID: 57407 (code=exited, status=0/SUCCESS)
+
+Apr 29 06:06:33 netology3 Keepalived_vrrp[57418]: (VI_1) received lower priority (50) advert from 172.28.128.40 - discarding
+Apr 29 06:06:34 netology3 Keepalived_vrrp[57418]: (VI_1) received lower priority (50) advert from 172.28.128.40 - discarding
+Apr 29 06:06:35 netology3 Keepalived_vrrp[57418]: (VI_1) Entering MASTER STATE
+Apr 29 12:50:14 netology3 systemd[1]: Stopping Keepalive Daemon (LVS and VRRP)...
+Apr 29 12:50:14 netology3 Keepalived[57407]: Stopping
+Apr 29 12:50:14 netology3 Keepalived_vrrp[57418]: (VI_1) sent 0 priority
+Apr 29 12:50:15 netology3 Keepalived_vrrp[57418]: Stopped
+Apr 29 12:50:15 netology3 Keepalived[57407]: Stopped Keepalived v2.0.19 (10/19,2019)
+Apr 29 12:50:15 netology3 systemd[1]: keepalived.service: Succeeded.
+Apr 29 12:50:15 netology3 systemd[1]: Stopped Keepalive Daemon (LVS and VRRP).
+root@netology3:~# ip -4 addres | grep inet
+    inet 127.0.0.1/8 scope host lo
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic eth0
+    inet 172.28.128.30/24 scope global eth1
+root@netology3:~# 
+
+
+Смотрим ip адреса на netology4:
+
+root@netology4:/etc/keepalived# ip -4 address | grep inet
+    inet 127.0.0.1/8 scope host lo
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic eth0
+    inet 172.28.128.40/24 scope global eth1
+    inet 172.28.128.200/24 scope global secondary eth1
+root@netology4:/etc/keepalived# 
+
+
+Пробуем еще раз отправить запрос:
+До запроса:
+root@netology1:~# wc -l /var/log/nginx/access.log
+29 /var/log/nginx/access.log
+root@netology1:~# 
+
+root@netology2:~# wc -l /var/log/nginx/access.log
+29 /var/log/nginx/access.log
+root@netology2:~# 
+
+root@netology3:~# ipvsadm -Ln --stats
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port               Conns   InPkts  OutPkts  InBytes OutBytes
+  -> RemoteAddress:Port
+TCP  172.28.128.200:80                  60      350        0    23028        0
+  -> 172.28.128.10:80                   30      170        0    11214        0
+  -> 172.28.128.20:80                   30      180        0    11814        0
+root@netology3:~# 
+
+root@netology4:/etc/keepalived# ipvsadm -Ln --stats
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port               Conns   InPkts  OutPkts  InBytes OutBytes
+  -> RemoteAddress:Port
+TCP  172.28.128.200:80                   0        0        0        0        0
+  -> 172.28.128.10:80                    0        0        0        0        0
+  -> 172.28.128.20:80                    0        0        0        0        0
+root@netology4:/etc/keepalived#
+
+
+
+Делаем запрос:
+root@netology5:~# for i in {1..50}; do curl -I -s 172.28.128.200; done
+
+После запроса:
+root@netology1:~# wc -l /var/log/nginx/access.log
+54 /var/log/nginx/access.log
+root@netology1:~#
+
+root@netology2:~# wc -l /var/log/nginx/access.log
+54 /var/log/nginx/access.log
+root@netology2:~# 
+
+root@netology3:~# ipvsadm -Ln --stats
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port               Conns   InPkts  OutPkts  InBytes OutBytes
+  -> RemoteAddress:Port
+TCP  172.28.128.200:80                  60      350        0    23028        0
+  -> 172.28.128.10:80                   30      170        0    11214        0
+  -> 172.28.128.20:80                   30      180        0    11814        0
+root@netology3:~# 
+
+
+root@netology4:/etc/keepalived# ipvsadm -Ln --stats
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port               Conns   InPkts  OutPkts  InBytes OutBytes
+  -> RemoteAddress:Port
+TCP  172.28.128.200:80                  50      300        0    19950        0
+  -> 172.28.128.10:80                   25      150        0     9975        0
+  -> 172.28.128.20:80                   25      150        0     9975        0
+root@netology4:/etc/keepalived# 
+
+
+
+Как видно из прикрепленных выводов команд, keepalived выполнил свою работу и перевел балансировщик netology4 из режима slave в режим мастер, 
+благодаря чему потеря хоста netology3 не отразилась на работе.
+
+
+
+
+
+3. Т.к. мы хотим чтобы все три балансировщика работали вместе, на каждом из них должен быть свой VIP. Значит мы должны использовать 3 VIP.
+	Т.е. для каждого сервера один VIP рабочий, а 2 VIP от других балансировщиков переходящие. Чтобы при выходе из строя одного из балансировщиков,
+	его ip адрес переехал на один из рабочих балансировщиков, который возьмет на себя его работу.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
