@@ -1,10 +1,10 @@
-1. Установим  Hashicorp Vault 
+1. РЈСЃС‚Р°РЅРѕРІРёРј  Hashicorp Vault 
 
 root@vagrant:~# curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 root@vagrant:~# sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 root@vagrant:~# sudo apt-get update && sudo apt-get install vault
 	
-Проверяем установку:
+РџСЂРѕРІРµСЂСЏРµРј СѓСЃС‚Р°РЅРѕРІРєСѓ:
 root@vagrant:~# vault
 Usage: vault <command> [args]
 
@@ -37,7 +37,7 @@ Other commands:
     token          Interact with tokens
 
 		
-2. Запуск сервера
+2. Р—Р°РїСѓСЃРє СЃРµСЂРІРµСЂР°
 
 root@vagrant:~# vault server -dev -dev-listen-address="0.0.0.0:8200"
 ==> Vault server configuration:
@@ -110,7 +110,7 @@ The unseal key and root token are displayed below in case you want to
 seal/unseal the Vault or re-authenticate.
 
 
-3. Создаем ROOT CA
+3. РЎРѕР·РґР°РµРј ROOT CA
 root@vagrant:~# vault secrets enable pki
 Success! Enabled the pki secrets engine at: pki/
 root@vagrant:~# vault secrets tune -max-lease-ttl=87600h pki
@@ -123,7 +123,7 @@ root@vagrant:~# vault write pki/config/urls         issuing_certificates="http:/
 Success! Data written to: pki/config/urls
 
 
-Создаем промежуточный CA
+РЎРѕР·РґР°РµРј РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅС‹Р№ CA
 root@vagrant:~# vault secrets enable -path=pki_int pki
 Success! Enabled the pki secrets engine at: pki_int/
 root@vagrant:~# vault secrets tune -max-lease-ttl=43800h pki_int
@@ -142,7 +142,7 @@ Success! Data written to: pki_int/intermediate/set-signed
 root@vagrant:~# 
 
 
-Добавляем роль, для дальнейшего выпуска сертификатов
+Р”РѕР±Р°РІР»СЏРµРј СЂРѕР»СЊ, РґР»СЏ РґР°Р»СЊРЅРµР№С€РµРіРѕ РІС‹РїСѓСЃРєР° СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ
 root@vagrant:~# vault write pki_int/roles/example-dot-com \
 >         allowed_domains="example.com" \
 >         allow_subdomains=true \
@@ -151,7 +151,7 @@ Success! Data written to: pki_int/roles/example-dot-com
 
 
 
-4. Делаем сертификат для netology.example.com
+4. Р”РµР»Р°РµРј СЃРµСЂС‚РёС„РёРєР°С‚ РґР»СЏ netology.example.com
 root@vagrant:~# vault write pki_int/issue/example-dot-com common_name="netology.example.com" ttl="24h"
 Key                 Value
 ---                 -----
@@ -253,18 +253,18 @@ serial_number       0d:29:76:63:63:49:2e:bd:37:74:13:ed:e5:e4:01:2b:91:4e:64:af
 root@vagrant:~# 
 
 
-Сохраним вывод команды:
+РЎРѕС…СЂР°РЅРёРј РІС‹РІРѕРґ РєРѕРјР°РЅРґС‹:
 
-certificate в netology.pem
-private_key в netology_key.key
+certificate РІ netology.pem
+private_key РІ netology_key.key
 
-Данные issuing_ca и ca_chain, я понимаю это public_key ROOT CA и Intermediate CA. 
+Р”Р°РЅРЅС‹Рµ issuing_ca Рё ca_chain, СЏ РїРѕРЅРёРјР°СЋ СЌС‚Рѕ public_key ROOT CA Рё Intermediate CA. 
 
 
-5. Поднимаем сервер nginx 
+5. РџРѕРґРЅРёРјР°РµРј СЃРµСЂРІРµСЂ nginx 
 root@vagrant:~# apt-get install -y nginx
 
-Настроил конфиг
+РќР°СЃС‚СЂРѕРёР» РєРѕРЅС„РёРі
 root@vagrant:~# cat /etc/nginx/sites-enabled/default 
 ##
 # You should look at the following URL's in order to grasp a solid understanding
@@ -380,12 +380,12 @@ May 07 06:34:25 vagrant systemd[1]: Started A high performance web server and a 
 root@vagrant:~# 
 
 
-6. Добавляем netology.example.com в hosts
+6. Р”РѕР±Р°РІР»СЏРµРј netology.example.com РІ hosts
 root@vagrant:~# echo 127.0.0.1 netology.example.com >> /etc/hosts
 root@vagrant:~# host netology.example.com
 netology.example.com has address 127.0.0.1
 
-Проверяем запросом
+РџСЂРѕРІРµСЂСЏРµРј Р·Р°РїСЂРѕСЃРѕРј
 root@vagrant:~# curl -I https://netology.example.com
 curl: (60) SSL certificate problem: unable to get local issuer certificate
 More details here: https://curl.haxx.se/docs/sslcerts.html
@@ -395,7 +395,7 @@ establish a secure connection to it. To learn more about this situation and
 how to fix it, please visit the web page mentioned above.
 root@vagrant:~# 
 
-Нужно добавить наш Intermediate CA в доверенные сертификаты
+РќСѓР¶РЅРѕ РґРѕР±Р°РІРёС‚СЊ РЅР°С€ Intermediate CA РІ РґРѕРІРµСЂРµРЅРЅС‹Рµ СЃРµСЂС‚РёС„РёРєР°С‚С‹
 root@vagrant:~# ln -s /root/intermediate.cert.pem /usr/local/share/ca-certificates/intermediate.cert.crt
 root@vagrant:~# update-ca-certificates
 Updating certificates in /etc/ssl/certs...
@@ -404,7 +404,7 @@ Running hooks in /etc/ca-certificates/update.d...
 done.
 
 
-Проверям снова
+РџСЂРѕРІРµСЂСЏРј СЃРЅРѕРІР°
 root@vagrant:~# curl -I https://netology.example.com
 HTTP/1.1 200 OK
 Server: nginx/1.18.0 (Ubuntu)
@@ -430,11 +430,11 @@ HTTP/1.1 200 OK
 root@vagrant:~# 
 
 
-Все работает
+Р’СЃРµ СЂР°Р±РѕС‚Р°РµС‚
 
 
-7. Ознакомился с протоколом ACME и CA Let's encrypt. Почитал инструкцию по получению сертификата через certbot. К сожалению у меня нет доменного имени для тестов. 
-	В скором времени приму в управление сайт на работе, обязательно попробую заменить там платный сертификат.
+7. РћР·РЅР°РєРѕРјРёР»СЃСЏ СЃ РїСЂРѕС‚РѕРєРѕР»РѕРј ACME Рё CA Let's encrypt. РџРѕС‡РёС‚Р°Р» РёРЅСЃС‚СЂСѓРєС†РёСЋ РїРѕ РїРѕР»СѓС‡РµРЅРёСЋ СЃРµСЂС‚РёС„РёРєР°С‚Р° С‡РµСЂРµР· certbot. Рљ СЃРѕР¶Р°Р»РµРЅРёСЋ Сѓ РјРµРЅСЏ РЅРµС‚ РґРѕРјРµРЅРЅРѕРіРѕ РёРјРµРЅРё РґР»СЏ С‚РµСЃС‚РѕРІ. 
+	Р’ СЃРєРѕСЂРѕРј РІСЂРµРјРµРЅРё РїСЂРёРјСѓ РІ СѓРїСЂР°РІР»РµРЅРёРµ СЃР°Р№С‚ РЅР° СЂР°Р±РѕС‚Рµ, РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РїРѕРїСЂРѕР±СѓСЋ Р·Р°РјРµРЅРёС‚СЊ С‚Р°Рј РїР»Р°С‚РЅС‹Р№ СЃРµСЂС‚РёС„РёРєР°С‚.
 
 
 
