@@ -331,8 +331,11 @@ X-XSS-Protection: 0
 X-Frame-Options: SAMEORIGIN
 
 ip 192.168.1.1 попытка 1
+```
+```
 root@vagrant:~# cat error 
 192.168.1.1
-root@vagrant:~# 
-```
+root@vagrant:~#
+``` 
+
 >Все работает, скрипт останавливается, файл error записывается
