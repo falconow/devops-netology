@@ -76,13 +76,14 @@ root@vagrant:~/lesson4.2#
 import os
 import sys
 bash_command = ["cd "+sys.argv[1], "git status"]
-if (!os.access(sys.argv[1]+"/.git",os.F_OK)):
+if (not os.access(sys.argv[1]+"/.git",os.F_OK)):
     print("Указанный путь не является локальным репозиторием!")
+    sys.exit()
 result_os = os.popen(' && '.join(bash_command)).read()
 is_change = False
 for result in result_os.split('\n'):
     if result.find('modified') != -1:
         prepare_result = result.replace('\tmodified:   ', '')
         print(f"{os.getcwd()}/{prepare_result}")
-root@vagrant:~/lesson4.2# 
+
 
