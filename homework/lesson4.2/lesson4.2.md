@@ -71,10 +71,15 @@ root@vagrant:~/lesson4.2#
 
 
 ### Задание 3
-
+Доработанный скрипт:
+````
+root@vagrant:~/lesson4.2# cat test3.py 
 #!/usr/bin/python3
 import os
 import sys
+if (len(sys.argv)<2):
+    print("Не указан путь к репозиторию")
+    sys.exit()
 bash_command = ["cd "+sys.argv[1], "git status"]
 if (not os.access(sys.argv[1]+"/.git",os.F_OK)):
     print("Указанный путь не является локальным репозиторием!")
@@ -85,5 +90,20 @@ for result in result_os.split('\n'):
     if result.find('modified') != -1:
         prepare_result = result.replace('\tmodified:   ', '')
         print(f"{os.getcwd()}/{prepare_result}")
+````
+
+>Проверим его работу:
+````
+root@vagrant:~/lesson4.2# ./test3.py 
+Не указан путь к репозиторию
+root@vagrant:~/lesson4.2# ./test3.py /tmp/
+Указанный путь не является локальным репозиторием!
+root@vagrant:~/lesson4.2# ./test3.py /root/netology/devops-netology/
+/root/lesson4.2/homework/lesson3.7/dop_3.7.txt
+/root/lesson4.2/homework/lesson3.8/lesson3.8.txt
+/root/lesson4.2/homework/lesson4.1/lesson4.1.txt
+root@vagrant:~/lesson4.2# 
+````
+>Все работает, ошибки некорректного указания репозитория обрабатываются
 
 
