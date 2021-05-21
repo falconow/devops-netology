@@ -139,7 +139,8 @@ google.com-209.85.233.101
 root@vagrant:~/lesson4.2# ./test4.py 
 drive.google.com-64.233.161.194
 mail.google.com-142.250.74.5
-google.com-209.85.233.101
+google.com-64.233.161.139
+[ERROR] google.com IP mismatch: <209.85.233.101> <64.233.161.139>
 ````
 >Скрипт работает, смену ip ловит успешно
 
