@@ -107,3 +107,41 @@ root@vagrant:~/lesson4.2#
 >Все работает, ошибки некорректного указания репозитория обрабатываются
 
 
+### Заданиме 4
+Скрипт:
+````
+root@vagrant:~/lesson4.2# cat ./test4.py 
+#!/bin/python3
+import socket
+import os
+site_list=("drive.google.com", "mail.google.com", "google.com")
+for i in site_list:
+    ip_new=socket.gethostbyname(i)
+    with open(i,'r') as f:
+        ip_old=f.read()
+    print(f"{i}-{ip_new}")
+    if (ip_new != ip_old):
+        print(f"[ERROR] {i} IP mismatch: <{ip_old}> <{ip_new}>")
+    with open(i,'w') as f:
+        f.write(ip_new)
+````
+
+>Проверим работу скрипта
+````
+root@vagrant:~/lesson4.2# ./test4.py 
+drive.google.com-64.233.161.194
+mail.google.com-142.250.74.5
+google.com-209.85.233.101
+````
+
+>Проверяем еще раз через несколько минут
+````
+root@vagrant:~/lesson4.2# ./test4.py 
+drive.google.com-64.233.161.194
+mail.google.com-142.250.74.5
+google.com-209.85.233.101
+````
+>Скрипт работает, смену ip ловит успешно
+
+
+
