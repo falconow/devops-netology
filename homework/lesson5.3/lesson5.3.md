@@ -69,6 +69,7 @@ root@vagrant:~#
 > Запустим контейнеры с образами centos и debian c подключенной директорией info:
 ```buildoutcfg
 root@vagrant:/etc# docker run -v /root/info/:/share/info --name centos -d -ti centos
+root@vagrant:/etc# docker run -v /root/info/:/info --name debian -d -ti debian
 root@vagrant:/etc# docker ps -a
 CONTAINER ID   IMAGE     COMMAND       CREATED              STATUS              PORTS     NAMES
 b8629058f1af   debian    "bash"        20 seconds ago       Up 20 seconds                 debian
