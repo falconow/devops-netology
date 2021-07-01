@@ -1,0 +1,192 @@
+1. Подставляя данные в калькулятор получаем:
+	требуемый буфер tcp для достижения 1024 Мбит / с с RTT 300,0 мс> = 37500,0 КБ
+	
+	Пробуем посчитать сами 
+	1 Гбит/с = 1024 Мбит/с = 1048576 Кбит/с = 1073741824 бит/с
+	300 мс = 0,3с
+	
+	1073741824*0,3 = 322122547,2 бит = 40265318,4 байт = 39321,6 Кбайт
+	
+	На сколько я понял в калькулятор заложены потери, поэтому результат разный.
+	
+	
+2. Теоретический предел сети
+	приблизительная оценка: скорость <(MSS / RTT) * (C / sqrt (Loss)) [C = 1] (на основе формулы Матиса и др.)
+	ограничение сети (MSS 1460 байт, RTT: 80,0 мс, потеря: 10 -08 (10 -06 %)): 1460,00 Мбит / сек.
+	
+	Теоретический предел сети
+	приблизительная оценка: скорость <(MSS / RTT) * (C / sqrt (Loss)) [C = 1] (на основе формулы Матиса и др.)
+	ограничение сети (MSS 1460 байт, RTT: 80,0 мс, потеря: 1 %): 1,46 Мбит / сек.
+	
+	Как мы видим при 1% потерь скорость передачи снижается в 1000 раз. 
+	
+
+3. Расчитаем максимальную скорость скачивания при линке 100Мбит/с
+
+	100 Мбит/с = 102400 Кбит/с = 104857600 бит/с
+	
+	104857600 / 8 = 13107200 байт/с = 12800 Кбайт/с = 12,5 Мбайт/с
+	
+	Получаем максимальную скорость загрузки 12,5 Мбайт/с. 
+	
+	Размер фрейма не влияет на скорость передачи данных. С помощью него задается фрагментация, а не скорость соединения.
+	
+
+4. Получим tcpdump команды curl -I http://netology.ru
+
+tcpdump -v -i eth0 portrange 53-81
+tcpdump: listening on eth0, link-type EN10MB (Ethernet), capture size 262144 bytes
+17:20:13.534414 IP (tos 0x0, ttl 64, id 52130, offset 0, flags [DF], proto UDP (17), length 68)
+    vagrant.57729 > 10.0.2.3.domain: 11021+ [1au] A? netology.ru. (40)
+17:20:13.535645 IP (tos 0x0, ttl 64, id 52131, offset 0, flags [DF], proto UDP (17), length 78)
+    vagrant.34245 > 10.0.2.3.domain: 15798+ [1au] PTR? 3.2.0.10.in-addr.arpa. (50)
+17:20:13.536057 IP (tos 0x0, ttl 64, id 52132, offset 0, flags [DF], proto UDP (17), length 68)
+    vagrant.44783 > 10.0.2.3.domain: 48489+ [1au] AAAA? netology.ru. (40)
+17:20:13.547637 IP (tos 0x0, ttl 64, id 23557, offset 0, flags [none], proto UDP (17), length 116)
+    10.0.2.3.domain > vagrant.57729: 11021 3/0/1 netology.ru. A 172.67.43.83, netology.ru. A 104.22.49.171, netology.ru. A 104.22.48.171 (88)
+17:20:13.548256 IP (tos 0x0, ttl 64, id 23558, offset 0, flags [none], proto UDP (17), length 137)
+    10.0.2.3.domain > vagrant.34245: 15798 NXDomain* 0/1/1 (109)
+17:20:13.548399 IP (tos 0x0, ttl 64, id 52134, offset 0, flags [DF], proto UDP (17), length 67)
+    vagrant.34245 > 10.0.2.3.domain: 15798+ PTR? 3.2.0.10.in-addr.arpa. (39)
+17:20:13.549320 IP (tos 0x0, ttl 64, id 23559, offset 0, flags [none], proto UDP (17), length 152)
+    10.0.2.3.domain > vagrant.44783: 48489 3/0/1 netology.ru. AAAA 2606:4700:10::ac43:2b53, netology.ru. AAAA 2606:4700:10::6816:30ab, netology.ru. AAAA 2606:4700:10::6816:31ab (124)
+17:20:13.549835 IP (tos 0x0, ttl 64, id 60589, offset 0, flags [DF], proto TCP (6), length 60)
+    vagrant.55174 > 172.67.43.83.http: Flags [S], cksum 0xe3d3 (incorrect -> 0x1ca5), seq 2313879981, win 64240, options [mss 1460,sackOK,TS val 2131782213 ecr 0,nop,wscale 7], length 0
+17:20:13.561308 IP (tos 0x0, ttl 64, id 23560, offset 0, flags [none], proto UDP (17), length 126)
+    10.0.2.3.domain > vagrant.34245: 15798 NXDomain* 0/1/0 (98)
+17:20:13.561990 IP (tos 0x0, ttl 64, id 52135, offset 0, flags [DF], proto UDP (17), length 79)
+    vagrant.42553 > 10.0.2.3.domain: 50797+ [1au] PTR? 15.2.0.10.in-addr.arpa. (51)
+17:20:13.562607 IP (tos 0x0, ttl 64, id 23561, offset 0, flags [none], proto TCP (6), length 44)
+    172.67.43.83.http > vagrant.55174: Flags [S.], cksum 0xa731 (correct), seq 1137600001, ack 2313879982, win 65535, options [mss 1460], length 0
+17:20:13.562630 IP (tos 0x0, ttl 64, id 60590, offset 0, flags [DF], proto TCP (6), length 40)
+    vagrant.55174 > 172.67.43.83.http: Flags [.], cksum 0xe3bf (incorrect -> 0xc3fd), ack 1, win 64240, length 0
+17:20:13.563080 IP (tos 0x0, ttl 64, id 60591, offset 0, flags [DF], proto TCP (6), length 116)
+    vagrant.55174 > 172.67.43.83.http: Flags [P.], cksum 0xe40b (incorrect -> 0x632c), seq 1:77, ack 1, win 64240, length 76: HTTP, length: 76
+        HEAD / HTTP/1.1
+        Host: netology.ru
+        User-Agent: curl/7.68.0
+        Accept: */*
+
+17:20:13.563260 IP (tos 0x0, ttl 64, id 23562, offset 0, flags [none], proto TCP (6), length 40)
+    172.67.43.83.http > vagrant.55174: Flags [.], cksum 0xbea2 (correct), ack 77, win 65535, length 0
+17:20:13.574991 IP (tos 0x0, ttl 64, id 23563, offset 0, flags [none], proto UDP (17), length 138)
+    10.0.2.3.domain > vagrant.42553: 50797 NXDomain* 0/1/1 (110)
+17:20:13.575458 IP (tos 0x0, ttl 64, id 52139, offset 0, flags [DF], proto UDP (17), length 68)
+    vagrant.42553 > 10.0.2.3.domain: 50797+ PTR? 15.2.0.10.in-addr.arpa. (40)
+17:20:13.588543 IP (tos 0x0, ttl 64, id 23564, offset 0, flags [none], proto UDP (17), length 127)
+    10.0.2.3.domain > vagrant.42553: 50797 NXDomain* 0/1/0 (99)
+17:20:13.589744 IP (tos 0x0, ttl 64, id 52140, offset 0, flags [DF], proto UDP (17), length 82)
+    vagrant.44663 > 10.0.2.3.domain: 55031+ [1au] PTR? 83.43.67.172.in-addr.arpa. (54)
+17:20:13.602774 IP (tos 0x0, ttl 64, id 23566, offset 0, flags [none], proto UDP (17), length 144)
+    10.0.2.3.domain > vagrant.44663: 55031 NXDomain 0/1/1 (116)
+17:20:13.603267 IP (tos 0x0, ttl 64, id 52144, offset 0, flags [DF], proto UDP (17), length 71)
+    vagrant.44663 > 10.0.2.3.domain: 55031+ PTR? 83.43.67.172.in-addr.arpa. (43)
+17:20:13.616123 IP (tos 0x0, ttl 64, id 23567, offset 0, flags [none], proto UDP (17), length 133)
+    10.0.2.3.domain > vagrant.44663: 55031 NXDomain 0/1/0 (105)
+17:20:13.646089 IP (tos 0x0, ttl 64, id 23572, offset 0, flags [none], proto TCP (6), length 335)
+    172.67.43.83.http > vagrant.55174: Flags [P.], cksum 0xca31 (correct), seq 1:296, ack 77, win 65535, length 295: HTTP, length: 295
+        HTTP/1.1 301 Moved Permanently
+        Date: Mon, 19 Apr 2021 17:20:14 GMT
+        Connection: keep-alive
+        Cache-Control: max-age=3600
+        Expires: Mon, 19 Apr 2021 18:20:14 GMT
+        Location: https://netology.ru/
+        cf-request-id: 098cbeb6d600008f0198860000000001
+        Server: cloudflare
+        CF-RAY: 6427cd6adede8f01-DME
+
+17:20:13.646123 IP (tos 0x0, ttl 64, id 60592, offset 0, flags [DF], proto TCP (6), length 40)
+    vagrant.55174 > 172.67.43.83.http: Flags [.], cksum 0xe3bf (incorrect -> 0xc3b1), ack 296, win 63945, length 0
+17:20:13.650456 IP (tos 0x0, ttl 64, id 60593, offset 0, flags [DF], proto TCP (6), length 40)
+    vagrant.55174 > 172.67.43.83.http: Flags [F.], cksum 0xe3bf (incorrect -> 0xc3b0), seq 77, ack 296, win 63945, length 0
+17:20:13.650652 IP (tos 0x0, ttl 64, id 23580, offset 0, flags [none], proto TCP (6), length 40)
+    172.67.43.83.http > vagrant.55174: Flags [.], cksum 0xbd7a (correct), ack 78, win 65535, length 0
+17:20:13.663600 IP (tos 0x0, ttl 64, id 23584, offset 0, flags [none], proto TCP (6), length 40)
+    172.67.43.83.http > vagrant.55174: Flags [F.], cksum 0xbd79 (correct), seq 296, ack 78, win 65535, length 0
+17:20:13.663619 IP (tos 0x0, ttl 64, id 0, offset 0, flags [DF], proto TCP (6), length 40)
+    vagrant.55174 > 172.67.43.83.http: Flags [.], cksum 0xc3af (correct), ack 297, win 63945, length 0
+	
+
+Описание процесса открытия сайта:
+
+1) Сначала система отправляет dns запрос по адресу netology.ru, запрашивает А запись, PTR запись и AAAA запись. 
+2) После получения данных от dns сервера, система посылает запрос на установление соединения с сайтом, в нашем случае ip адрес сайта 172.67.43.83.
+3) После установления соединения с сайтом отправляется запрос на передачу данных, начинается обмен данными, мы отправляем запрос и получаем в ответ данные.
+4) После завершения обмена данными отправляется запрос на завершение соединения с обеих сторон, после получения подтверждения соединение закрывается
+
+
+
+5. Выполняем команды
+
+vagrant@vagrant:~$ dig NS . @1.1.1.1 +noall +answer  | head -n1
+.                       516394  IN      NS      a.root-servers.net.
+vagrant@vagrant:~$ dig uk. @a.root-servers.net. +noall +authority | head -n1
+uk.                     172800  IN      NS      dns1.nic.uk.
+vagrant@vagrant:~$ dig co.uk. @dns1.nic.uk. +noall +authority | head -n1
+co.uk.                  10800   IN      SOA     dns1.nic.uk. hostmaster.nominet.org.uk. 1310640708 900 300 2419200 10800
+vagrant@vagrant:~$ dig google.co.uk. @dns1.nic.uk. +noall +authority | head -n1
+google.co.uk.           172800  IN      NS      ns1.google.com.
+vagrant@vagrant:~$ dig A www.google.co.uk @ns1.google.com. +answer
+; <<>> DiG 9.16.1-Ubuntu <<>> A www.google.co.uk @ns1.google.com. +answer
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 24213
+;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 512
+;; QUESTION SECTION:
+;www.google.co.uk.              IN      A
+
+;; ANSWER SECTION:
+www.google.co.uk.       300     IN      A       216.58.207.227
+
+;; Query time: 52 msec
+;; SERVER: 216.239.32.10#53(216.239.32.10)
+;; WHEN: Mon Apr 19 19:17:13 UTC 2021
+;; MSG SIZE  rcvd: 61
+vagrant@vagrant:~$
+
+
+В итоге получаем что для резолва домена www.google.co.uk необходимо сделать 5 интерактивных запросов
+
+
+
+6. Считаем количество адресов в подсети /25. 
+	32-25=7
+	2^7=128 
+	Получам в подсети /25 всего 128 адресов. 
+	Вычатаем из этого числа адрес подсети, адрес для широковещательных сообщений и получаем 128-2=126 адреса которые можно назначить устройствам.
+	
+	Посчитаем тоже самое для маски 255.248.0.0
+	
+	Сначала переведем маску в двоичный вид.
+	11111111 11111000 00000000 00000000 
+	
+	Считаем количество единиц: 13
+	
+	Считаем количество адресов в подсети /13:
+	32-13=19
+	2^19=524288, Вычатаем из этого числа адрес подсети, адрес для широковещательных сообщений и получаем 524288-2=524286 адреса которые можно назначить устройствам.
+	
+
+7. Считаем количество адресов с маской /23: 32-23=9, 2^9=512
+	Считаем количество адресов с маской /24: 32-24=8, 2^8=256
+	
+	Адресов в подсети /23 больше, чем в подсети /24
+	
+	
+8. Разделить получится.
+	Считаем количество адресов с маской /8: 32-8=24, 2^24=16777216 адресов.
+	К нашему числу адресов в одной подсети добавляем широковещательный адрес и адрес подсети, получаем 131070+2=131072
+	Получаем количество подсетей 16777216/131072=128
+	Получаем маску одной подсети, вычитаем двоичный логарифм от 131072, получаем маску подсети /17.
+	
+
+	
+	
+
+
+	
+	

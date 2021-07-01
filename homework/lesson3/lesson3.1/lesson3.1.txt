@@ -1,0 +1,16 @@
+9.  154 RESERVED WORDS
+    155        Reserved words are words that have a special meaning to the shell.  The following words are recognized as reserved when unquoted and either the f    155 irst
+    156        word of a simple command (see SHELL GRAMMAR below) or the third word of a case or for command:
+    157
+    158        ! case  coproc  do done elif else esac fi for function if in select then until while { } time [[ ]]
+	
+	
+10. touch file{1..1000}
+
+11. Проверяет существует ли директория /tmp
+
+12.  mkdir /tmp/new_path_directory
+	touch /tmp/new_path_directory/bash
+	export PATH="/tmp/new_path_directory/bash:"$PATH
+	
+13. В лекции не рассматривали работу batch и at. С ними не сталкивался. Чтобы запланировать повторяющиеся задания можно использовать cron

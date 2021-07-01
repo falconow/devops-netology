@@ -1,0 +1,173 @@
+1. Не получилось соединиться с хостом по telnet
+
+2. В разделяемой среде WiFi при работе на 2.4 ГГц. имеется 13 каналов. Непересекающихся каналов 3, это 1, 6 и 11
+
+3. MAC 38:f9:d3:55:55:79 принадлежит компании Apple
+
+4. payload=9001-20-32=8949 
+
+5. Флаги SYN и FIN не могут быть использованны одновременно. Т.к. это противоречит правилам установки сетевого соединения, при установке соединения SYN,
+	при разрыве FIN. Иначе возникнет неомределенность что же делать.
+
+6. Нет, потому что статус TIME-WAIT присутствует в TCP соединении, а команда "ss -ula sport = :53" отображает UDP соединения
+
+7. Схема имеет следующий вид
+	  Клиент	 		   Сервер
+	ESTABLISHED			ESTABLISHED		
+	FIN_WAIT 1			CLOSE_WAIT
+	FIN_WAIT 2			LAST ASK	
+	TIME_WAIT			CLOSED
+	CLOSED				CLOSED
+	
+8. Т.к. tcp порт 16 битное число, то макисмальное число портов определяется как 2^16=65536
+	Соответсвенно это максимальное число соединений, которое в теории может обслужить сервер.
+	Т.к. соединение это связка ip:port, для каждого клиента макисмальное число соединений будет 2^16=65536.
+	
+9. Да это возможно. Это происходит когда инициатором разрыва соединения является сам сервер. Сталкивался с этим на работе. 
+	В целом учитывая алгоритм закрытия соединения, состояние TIME_WAIT является нормой. По прошествию time_out соединение все равно закроется.
+	При правильной работе приложений сервера и клиента проблем быть не должно.
+
+10. Фрагментация UDP плоха тем, что протокол UDP не обеспечивает точной доставки пакетов. Поэтому есть вероятность что часть фрагментированных данных не дойдет получателю, нарушится целостность данных.
+
+11. Я бы поднял rsyslog Server. Изучил принцип работы syslog. Использовал бы протокол UDP т.к. он работает быстрее TCP. Думаю в данном случае надежностью доставки данных можно принебречь.
+
+12. root@vagrant:~# ss state listening| column -t
+Netid  Recv-Q  Send-Q  Local                                       Address:Port  Peer  Address:Port  Process
+u_seq  0       4096    /run/udev/control                           15769         *     0
+u_str  0       4096    /run/user/1000/systemd/private              26907         *     0
+u_str  0       4096    /run/user/1000/bus                          26913         *     0
+u_str  0       4096    /run/user/1000/gnupg/S.dirmngr              26914         *     0
+u_str  0       4096    /run/user/1000/gnupg/S.gpg-agent.browser    26915         *     0
+u_str  0       4096    /run/user/1000/gnupg/S.gpg-agent.extra      26916         *     0
+u_str  0       4096    @/org/kernel/linux/storage/multipathd       15732         *     0
+u_str  0       4096    /run/user/1000/gnupg/S.gpg-agent.ssh        26917         *     0
+u_str  0       4096    /run/user/1000/gnupg/S.gpg-agent            26918         *     0
+u_str  0       4096    /run/user/1000/pk-debconf-socket            26919         *     0
+u_str  0       4096    /run/user/1000/snapd-session-agent.socket   26920         *     0
+u_str  0       4096    /run/dbus/system_bus_socket                 20590         *     0
+u_str  0       4096    /run/snapd.socket                           20595         *     0
+u_str  0       4096    /run/snapd-snap.socket                      20597         *     0
+u_str  0       4096    /run/uuidd/request                          20600         *     0
+u_str  0       4096    /run/systemd/private                        15719         *     0
+u_str  0       4096    /run/systemd/userdb/io.systemd.DynamicUser  15721         *     0
+u_str  0       4096    /run/lvm/lvmpolld.socket                    15730         *     0
+u_str  0       4096    /run/rpcbind.sock                           15733         *     0
+u_str  0       4096    /run/systemd/fsck.progress                  15755         *     0
+u_str  0       4096    /run/systemd/journal/stdout                 15765         *     0
+u_str  0       4096    /run/systemd/journal/io.systemd.journal     17338         *     0
+u_str  0       4096    @ISCSIADM_ABSTRACT_NAMESPACE                20594         *     0
+icmp6  0       0       *%eth0:ipv6-icmp                            *:*
+tcp    0       4096    0.0.0.0:sunrpc                              0.0.0.0:*
+tcp    0       4096    127.0.0.53%lo:domain                        0.0.0.0:*
+tcp    0       128     0.0.0.0:ssh                                 0.0.0.0:*
+tcp    0       4096    [::]:sunrpc                                 [::]:*
+tcp    0       128     [::]:ssh                                    [::]:*
+
+13. tcpdump -i eth0 -c 3 -eX
+
+14.  
+	Frame 2: 118 bytes on wire (944 bits), 118 bytes captured (944 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Apr 15, 2021 10:15:28.559296000 UTC
+    [Time shift for this packet: 0.000000000 seconds]
+    Epoch Time: 1618481728.559296000 seconds
+    [Time delta from previous captured frame: 0.001406000 seconds]
+    [Time delta from previous displayed frame: 0.001406000 seconds]
+    [Time since reference or first frame: 0.001406000 seconds]
+    Frame Number: 2
+    Frame Length: 118 bytes (944 bits)
+    Capture Length: 118 bytes (944 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:tcp:ssh]
+Ethernet II, Src: PcsCompu_14:86:db (08:00:27:14:86:db), Dst: RealtekU_12:35:02 (52:54:00:12:35:02)
+    Destination: RealtekU_12:35:02 (52:54:00:12:35:02)
+        Address: RealtekU_12:35:02 (52:54:00:12:35:02)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: PcsCompu_14:86:db (08:00:27:14:86:db)
+        Address: PcsCompu_14:86:db (08:00:27:14:86:db)
+        .... ..0. .... .... .... .... = LG bit: Globally unique address (factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 10.0.2.15, Dst: 10.0.2.2
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x10 (DSCP: Unknown, ECN: Not-ECT)
+        0001 00.. = Differentiated Services Codepoint: Unknown (4)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 104
+    Identification: 0xbb57 (47959)
+    FLAGS: 0X4000, DON'T FRAGMENT
+        0... .... .... .... = Reserved bit: Not set
+        .1.. .... .... .... = Don't fragment: Set
+        ..0. .... .... .... = More fragments: Not set
+    Fragment offset: 0
+    Time to live: 64
+    Protocol: TCP (6)
+    Header checksum: 0x6718 [validation disabled]
+    [Header checksum status: Unverified]
+    Source: 10.0.2.15
+    Destination: 10.0.2.2
+Transmission Control Protocol, Src Port: 22, Dst Port: 53568, Seq: 1, Ack: 1, Len: 64
+    Source Port: 22
+    Destination Port: 53568
+    [Stream index: 0]
+    [TCP Segment Len: 64]
+    Sequence number: 1    (relative sequence number)
+    Sequence number (raw): 3353380460
+    [Next sequence number: 65    (relative sequence number)]
+    Acknowledgment number: 1    (relative ack number)
+    Acknowledgment number (raw): 20308158
+    0101 .... = Header Length: 20 bytes (5)
+    Flags: 0x018 (PSH, ACK)
+        000. .... .... = Reserved: Not set
+        ...0 .... .... = Nonce: Not set
+        .... 0... .... = Congestion Window Reduced (CWR): Not set
+        .... .0.. .... = ECN-Echo: Not set
+        .... ..0. .... = Urgent: Not set
+        .... ...1 .... = Acknowledgment: Set
+        .... .... 1... = Push: Set
+        .... .... .0.. = Reset: Not set
+        .... .... ..0. = Syn: Not set
+        .... .... ...0 = Fin: Not set
+        [TCP Flags: ·······AP···]
+    Window size value: 65535
+    [Calculated window size: 65535]
+    [Window size scaling factor: -1 (unknown)]
+    Checksum: 0x186b [unverified]
+    [Checksum Status: Unverified]
+    Urgent pointer: 0
+    [SEQ/ACK analysis]
+        [Bytes in flight: 64]
+        [Bytes sent since last PSH flag: 64]
+    [Timestamps]
+        [Time since first frame in this TCP stream: 0.001406000 seconds]
+        [Time since previous frame in this TCP stream: 0.001406000 seconds]
+    TCP payload (64 bytes)
+SSH Protocol
+    Packet Length (encrypted): e08b5286
+    Encrypted Packet: 4cd9104264465d0f1e08e57bee33d91653b1719eecac9b44…
+    [Direction: server-to-client]
+	
+	
+
+Флаги IP встречаются. Изучил значения битов. Пример из дампа.
+
+ FLAGS: 0X4000, DON'T FRAGMENT
+        0... .... .... .... = Reserved bit: Not set
+        .1.. .... .... .... = Don't fragment: Set
+        ..0. .... .... .... = More fragments: Not set
+		
+		
+OUI в дампе присутствует. Пример:
+
+	Destination: RealtekU_12:35:02 (52:54:00:12:35:02)
+	
+	Сетевая карта использует Gigabit Ethernet
+		
+
+
+	
+	
+		

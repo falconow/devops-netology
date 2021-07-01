@@ -1,0 +1,153 @@
+1. Вырезка из результата команды
+
+uname({sysname="Linux", nodename="vagrant", ...}) = 0
+stat("/home/vagrant", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat(".", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/home", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/home/vagrant", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/tmp", {st_mode=S_IFDIR|S_ISVTX|0777, st_size=4096, ...}) = 0
+getpid()                                = 1148
+getppid()                               = 1145
+getpid()                                = 1148
+getpgrp()                               = 1145
+ioctl(2, TIOCGPGRP, [1145])             = 0
+rt_sigaction(SIGCHLD, {sa_handler=0x55a94cd02aa0, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f676e7ef210}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f676e7ef210}, 8) = 0
+prlimit64(0, RLIMIT_NPROC, NULL, {rlim_cur=3580, rlim_max=3580}) = 0
+rt_sigprocmask(SIG_BLOCK, NULL, [], 8)  = 0
+rt_sigprocmask(SIG_BLOCK, NULL, [], 8)  = 0
+stat("/tmp", {st_mode=S_IFDIR|S_ISVTX|0777, st_size=4096, ...}) = 0
+chdir("/tmp")    
+
+
+
+2. /usr/share/misc/magic.mgc
+
+
+
+3. Чтобы обнулить файл придется убить процесс, который выполняет записб в удаленный файл
+
+
+
+4. зомби-процессы занимают ресурсы ОС
+
+
+
+5. root@vagrant:~# opensnoop-bpfcc
+PID    COMM               FD ERR PATH
+876    vminfo              4   0 /var/run/utmp
+556    dbus-daemon        -1   2 /usr/local/share/dbus-1/system-services
+556    dbus-daemon        18   0 /usr/share/dbus-1/system-services
+556    dbus-daemon        -1   2 /lib/dbus-1/system-services
+556    dbus-daemon        18   0 /var/lib/snapd/dbus-1/system-services/
+876    vminfo              4   0 /var/run/utmp
+556    dbus-daemon        -1   2 /usr/local/share/dbus-1/system-services
+556    dbus-daemon        18   0 /usr/share/dbus-1/system-services
+556    dbus-daemon        -1   2 /lib/dbus-1/system-services
+556    dbus-daemon        18   0 /var/lib/snapd/dbus-1/system-services/
+876    vminfo              4   0 /var/run/utmp
+
+
+
+6. системный вызов uname
+
+NAME
+       uname - print system information
+
+	SYNOPSIS
+       uname [OPTION]...
+
+
+	uname({sysname="Linux", nodename="vagrant", ...}) = 0
+	fstat(1, {st_mode=S_IFCHR|0600, st_rdev=makedev(0x88, 0x1), ...}) = 0
+	uname({sysname="Linux", nodename="vagrant", ...}) = 0
+	uname({sysname="Linux", nodename="vagrant", ...}) = 0
+	write(1, "Linux vagrant 5.4.0-58-generic #"..., 105Linux vagrant 5.4.0-58-generic #64-Ubuntu SMP Wed Dec 9 08:16:25 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
+	) = 105
+	
+
+
+В MAN по uname НЕТ ССЫЛОК НА КАТАЛОГ /proc	
+	
+vagrant@vagrant:~$ man uname > uname.txt
+vagrant@vagrant:~$
+vagrant@vagrant:~$ cat uname.txt
+UNAME(1)                                                      User Commands                                                     UNAME(1)
+
+NAME
+       uname - print system information
+
+SYNOPSIS
+       uname [OPTION]...
+
+DESCRIPTION
+       Print certain system information.  With no OPTION, same as -s.
+
+       -a, --all
+              print all information, in the following order, except omit -p and -i if unknown:
+
+       -s, --kernel-name
+              print the kernel name
+
+       -n, --nodename
+              print the network node hostname
+
+       -r, --kernel-release
+              print the kernel release
+
+       -v, --kernel-version
+              print the kernel version
+
+       -m, --machine
+              print the machine hardware name
+
+       -p, --processor
+              print the processor type (non-portable)
+
+       -i, --hardware-platform
+              print the hardware platform (non-portable)
+
+       -o, --operating-system
+              print the operating system
+
+       --help display this help and exit
+
+       --version
+              output version information and exit
+
+AUTHOR
+       Written by David MacKenzie.
+
+REPORTING BUGS
+       GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+       Report uname translation bugs to <https://translationproject.org/team/>
+
+COPYRIGHT
+       Copyright © 2018 Free Software Foundation, Inc.  License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+       This is free software: you are free to change and redistribute it.  There is NO WARRANTY, to the extent permitted by law.
+
+SEE ALSO
+       arch(1), uname(2)
+
+       Full documentation at: <https://www.gnu.org/software/coreutils/uname>
+       or available locally via: info '(coreutils) uname invocation'
+
+GNU coreutils 8.30                                           September 2019                                                     UNAME(1)
+
+
+
+
+
+
+
+
+7. Через ";" команды выполняются последовательно поочереди, независимо от результата. 
+	"&&" Срабатывает как логическое "И", если первая команда не дала результат, то дальнейшее выполнение останавливается.
+	
+	set -e в лекции не рассматривали, погуглив в инете узнал, что она останавливает выполнение скрипта при ошибках, поэтому думаю использовать && смысла нет.
+	
+	
+8. set -euxo pipefail, что это такое??? В лекциях ни слова об этом.
+
+9. Самый популярный статус S - interruptible sleep.
+	 S, Ss или Ssl думаю равнозначные
+	
