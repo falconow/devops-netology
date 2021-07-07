@@ -76,6 +76,7 @@ mysql>
 ```
 
 ### Задание 2
+***
 Создание пользователя:
 ```buildoutcfg
 CREATE USER 'test'@'127.0.0.1' 
@@ -104,6 +105,7 @@ mysql> SELECT * FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE USER='test';
 ```
 
 ### Задание 3
+***
 ```buildoutcfg
 mysql> SHOW PROFILES;
 +----------+------------+-------------------------+
