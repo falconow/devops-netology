@@ -103,6 +103,60 @@ mysql> SELECT * FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE USER='test';
 
 ```
 
+### Задание 3
+```buildoutcfg
+mysql> SHOW PROFILES;
++----------+------------+-------------------------+
+| Query_ID | Duration   | Query                   |
++----------+------------+-------------------------+
+|        1 | 0.01102175 | SHOW ENGINES            |
+|        2 | 0.00022625 | DROP TABLE IF EXISTS t1 |
+|        3 | 0.02470950 | SHOW DATABASES          |
+|        4 | 0.00354250 | SELECT DATABASE()       |
+|        5 | 0.00126725 | show databases          |
+|        6 | 0.01512975 | show tables             |
+|        7 | 0.00188075 | SHOW TABLES             |
+|        8 | 0.00080450 | SHOW DATABASES          |
+|        9 | 0.00046600 | SELECT DATABASE()       |
+|       10 | 0.00107025 | show databases          |
+|       11 | 0.00139550 | show tables             |
+|       12 | 0.00029700 | SET profiling = 1       |
+|       13 | 0.00038975 | SELECT @@profiling      |
++----------+------------+-------------------------+
+13 rows in set, 1 warning (0.00 sec)
+```
+> Видим длительность выполнения последних команд
 
+Смотрим Engine:
+```buildoutcfg
+mysql> SELECT TABLE_NAME,ENGINE,ROW_FORMAT,TABLE_ROWS,DATA_LENGTH,INDEX_LENGTH FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'test_db' ORDER BY ENGINE asc;
++------------+--------+------------+------------+-------------+--------------+
+| TABLE_NAME | ENGINE | ROW_FORMAT | TABLE_ROWS | DATA_LENGTH | INDEX_LENGTH |
++------------+--------+------------+------------+-------------+--------------+
+| orders     | InnoDB | Dynamic    |          5 |       16384 |            0 |
++------------+--------+------------+------------+-------------+--------------+
+1 row in set (0.00 sec)
+
+
+```
+
+Время выполнения:
+```buildoutcfg
+|       18 | 0.04891800 | ALTER TABLE orders ENGINE = MyISAM  
+```
+
+```buildoutcfg
+|       24 | 0.00029375 | SELECT * FROM orders 
+```
+
+```buildoutcfg
+|       22 | 0.23670525 | ALTER TABLE orders ENGINE = InnoDB  
+```
+
+```buildoutcfg
+|       26 | 0.00031350 | SELECT * FROM orders 
+```
+
+> Как видно из результатов, на InnoDB запрос выполняется медленнее
 
 
