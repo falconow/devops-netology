@@ -75,6 +75,33 @@ mysql> SELECT COUNT(*) FROM orders WHERE price>300;
 mysql> 
 ```
 
+### Задание 2
+Создание пользователя:
+```buildoutcfg
+CREATE USER 'test'@'127.0.0.1' 
+IDENTIFIED WITH mysql_native_password BY 'test-pass'
+WITH MAX_QUERIES_PER_HOUR 100 
+PASSWORD EXPIRE INTERVAL 180 DAY 
+FAILED_LOGIN_ATTEMPTS 3 
+ATTRIBUTE '{"fname":"James", "lname":"Pretty"}';
+```
+
+Привилегии:
+```buildoutcfg
+GRANT SELECT ON test_db.* TO test@127.0.0.1;
+```
+
+Данные по пользователю:
+```buildoutcfg
+mysql> SELECT * FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE USER='test';
++------+-----------+---------------------------------------+
+| USER | HOST      | ATTRIBUTE                             |
++------+-----------+---------------------------------------+
+| test | 127.0.0.1 | {"fname": "James", "lname": "Pretty"} |
++------+-----------+---------------------------------------+
+1 row in set (0.00 sec)
+
+```
 
 
 
