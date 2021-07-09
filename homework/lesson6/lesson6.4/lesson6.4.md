@@ -354,10 +354,16 @@ root@d5eb5d008c5f:/#
 ```
 
 > Чтобы добавить уникальность значения столбца title нужно поправить в дампе создание таблицы orders и добавить параметр UNIQUE
+> 
+> А также создать индексы для поля title для связанных таблиц
 ```buildoutcfg
 CREATE TABLE public.orders (
     id integer DEFAULT nextval('public.orders_id_seq'::regclass) NOT NULL,
     title character varying(80) NOT NULL UNIQUE,
     price integer DEFAULT 0
 );
+
+CREATE INDEX orders_1_title ON public.orders_1 USING btree (title);
+
+CREATE INDEX orders_2_title ON public.orders_2 USING btree (title);
 ```
