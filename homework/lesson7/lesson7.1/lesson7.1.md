@@ -23,3 +23,27 @@
 
 * Хотите ли рассмотреть возможность внедрения новых инструментов для этого проекта?
 > Думаю для начала работы достаточно существующих инструментов для реализации проекта
+
+
+### Задание 2
+***
+```buildoutcfg
+root@vagrant:~# terraform --version
+Terraform v1.0.3
+on linux_amd64
+```
+
+### Задание 3
+***
+```buildoutcfg
+root@vagrant:/tmp# terraform --version
+Terraform v1.0.3
+on linux_amd64
+root@vagrant:/tmp# terraform-1.0.2 --version
+Terraform v1.0.2
+on linux_amd64
+
+Your version of Terraform is out of date! The latest version
+is 1.0.3. You can update by downloading from https://www.terraform.io/downloads.html
+
+```
