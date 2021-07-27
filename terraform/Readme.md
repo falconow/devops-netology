@@ -6,5 +6,7 @@
 
 ###  Задание 2
 ***
-1. Свой образ можно создать при помощи CloudFormation
-2. https://github.com/falconow/devops-netology/tree/main/terraform
+> 1. Свой образ можно создать при помощи CloudFormation
+
+> 2. Файлы в текущем репозитории(ссылка): 
+>>https://github.com/falconow/devops-netology/tree/main/terraform
