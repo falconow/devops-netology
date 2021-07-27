@@ -10,8 +10,8 @@ output "region_name" {
   value = data.aws_region.current.name
 }
 
-output "endpoint" {
-  value = data.aws_region.current.endpoint
+output "private_ip" {
+  value = aws_instance.web.private_ip
 }
 
 output "subnet_id" {
