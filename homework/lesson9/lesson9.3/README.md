@@ -16,3 +16,20 @@ INFO: SonarScanner 4.6.2.2472
 INFO: Java 11.0.11 AdoptOpenJDK (64-bit)
 INFO: Linux 5.11.0-37-generic amd64
 ```
+
+
+```
+falconow@falconow:~$ tree /home/falconow/.m2/repository/netology/
+/home/falconow/.m2/repository/netology/
+└── java
+    └── 8_282
+        ├── java-8_282-distrib.tar.gz
+        ├── java-8_282-distrib.tar.gz.sha1
+        ├── java-8_282.pom
+        ├── java-8_282.pom.lastUpdated
+        ├── java-8_282.pom.sha1
+        └── _remote.repositories
+
+2 directories, 6 files
+falconow@falconow:~$ 
+```
