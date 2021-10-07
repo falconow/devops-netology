@@ -17,7 +17,7 @@ INFO: Linux 5.11.0-37-generic amd64
 ```
 > Запустил анализатор кода и исправил ошибки.
 
-> Приложил [скриншот](https://github.com/falconow/devops-netology/blob/main/homework/lesson9/lesson9.3/sonar-scanner.jpg) с резкльтатом
+> Приложил [скриншот](https://github.com/falconow/devops-netology/blob/main/homework/lesson9/lesson9.3/sonar-scanner.jpg) с результатом
 ***
 
 ### Знакомство с Nexus
