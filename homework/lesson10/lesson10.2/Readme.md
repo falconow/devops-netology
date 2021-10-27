@@ -31,6 +31,6 @@ falconow@falconow:~$
 falconow@falconow:~$ curl http://localhost:9092/kapacitor/v1/ping
 falconow@falconow:~$ 
 ```
-![Скрин][/screenshots/screen1.png]
+![Скрин][./screenshots/screen1.png]
 
 
