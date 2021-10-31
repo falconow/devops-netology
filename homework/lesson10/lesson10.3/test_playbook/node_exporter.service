@@ -1,0 +1,12 @@
+[Unit]
+Description=Prometheus Node Exporter
+Wants=network-online.target
+After=network-online.target
+[Service]
+User=root
+Group=root
+Type=simple
+ExecStart=/usr/local/bin/node_exporter
+ExecStop=/bin/kill -15 $MAINPID
+[Install]
+WantedBy=multi-user.target

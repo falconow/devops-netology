@@ -1,0 +1,129 @@
+---
+- name: Install node-exporter
+  hosts: all
+  tasks:
+    - name: set timezone to Moscow
+      become: true
+      timezone:
+        name: Europe/Moscow
+
+    - name: Get archive node-exporter
+      get_url: 
+        url: "https://github.com/prometheus/node_exporter/releases/download/v1.2.2/node_exporter-1.2.2.linux-amd64.tar.gz"
+        dest: "/tmp/node-exporter.tar.gz"
+
+    - name: Create dir unarchive
+      become: true
+      file:
+        state: directory
+        path: "/tmp/node-exporter/"
+
+    - name: Unarchive node-exporter
+      become: true
+      unarchive:
+        remote_src: true
+        src: "/tmp/node-exporter.tar.gz"
+        dest: "/tmp/node-exporter/"
+        extra_opts: 
+          - --strip-components=1 
+
+    - name: Copy bin
+      become: true
+      copy:
+        remote_src: true
+        src: "/tmp/node-exporter/node_exporter"
+        dest: "/usr/local/bin"
+        mode: "0744"
+
+    - name: Copy service
+      become: true
+      copy:
+        src: "node_exporter.service"
+        dest: "/etc/systemd/system"
+        mode: "0744"
+
+    - name: Start service node-exporter
+      become: true
+      systemd:
+        daemon_reload: true
+        name: "node_exporter"
+        state: "started"
+        enabled: "true"
+
+- name: Install Prometheus
+  hosts: all
+  tasks:
+    - name: Get archive prometheus
+      get_url: 
+        url: "https://github.com/prometheus/prometheus/releases/download/v2.30.3/prometheus-2.30.3.linux-amd64.tar.gz"
+        dest: "/tmp/prometheus.tar.gz"
+    
+    - name: Create dir unarchive
+      become: true
+      file:
+        state: directory
+        path: "/tmp/prometheus/"
+
+    - name: Unarchive Prometheus
+      become: true
+      unarchive:
+        remote_src: true
+        src: "/tmp/prometheus.tar.gz"
+        dest: "/tmp/prometheus/"
+        extra_opts: 
+          - --strip-components=1 
+
+    - name: Copy bin files
+      become: true
+      copy:
+        remote_src: true
+        src: "/tmp/prometheus/{{ item }}"
+        dest: "/usr/local/bin/{{ item }}"
+        mode: "0744"
+      loop: 
+        - prometheus
+        - promtool
+
+    - name: Create dir config
+      become: true
+      file:
+        state: directory
+        path: "/etc/prometheus/"
+
+    - name: Copy config dir
+      become: "true"
+      copy: 
+        remote_src: true
+        src: "/tmp/prometheus/{{ item }}/"
+        dest: "/etc/prometheus/{{ item }}/"
+      loop:
+        - consoles
+        - console_libraries
+    
+    - name: Copy conf file
+      become: true
+      copy:
+        src: prometheus.yml
+        dest: /etc/prometheus/
+
+    - name: Copy service
+      become: true
+      copy:
+        src: "prometheus.service"
+        dest: "/etc/systemd/system"
+        mode: "0744"
+
+    - name: Start service Prometheus
+      become: true
+      systemd:
+        daemon_reload: true
+        name: "prometheus"
+        state: "started"
+        enabled: "true"
+
+      
+    
+
+
+
+

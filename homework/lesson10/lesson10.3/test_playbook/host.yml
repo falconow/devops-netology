@@ -1,0 +1,5 @@
+---
+node-exporter:
+  hosts:
+    test:
+      ansible_host: 178.154.231.36
