@@ -7,7 +7,7 @@
 ***
 ### Задание 1
 > С помощью docker-compose запустил связку prometheus-grafana.  
-В grafana подклчил prometheus как источник данных.
+В grafana подключил prometheus как источник данных.
 
 ![Скрин](./screenshots/prometheus.png)
 ***
@@ -27,7 +27,7 @@
 - Количество места на файловой системе:
     - node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.lxcfs|squashfs"} / node_filesystem_size_bytes{fstype!~"tmpfs|fuse.lxcfs|squashfs"}*100
 
-![Скрин](./screenshots/dashboard.png)
+![Скрин](./screenshots/Dashboard.png)
 ***
 
 ### Задание 3
