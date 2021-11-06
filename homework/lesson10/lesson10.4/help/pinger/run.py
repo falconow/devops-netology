@@ -4,6 +4,7 @@ import logging
 import random
 import time
 
+
 while True:
 
     number = random.randrange(0, 4)
