@@ -280,6 +280,30 @@ root@masterkube0:~# minikube addons list
 root@masterkube0:~# 
 ```
 
+***
+
+### **Задача 3: Установить kubectl**
+
+> Устанавливаем kubectl на рабочую машину
+
+```
+falconow@falconow:~$ curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 44.4M  100 44.4M    0     0  8823k      0  0:00:05  0:00:05 --:--:-- 9340k
+falconow@falconow:~$ chmod +x ./kubectl
+falconow@falconow:~$ sudo mv ./kubectl /usr/local/bin/kubectl
+[sudo] пароль для falconow: 
+falconow@falconow:~$ 
+```
+
+```
+falconow@falconow:~$ kubectl version --client
+Client Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.1", GitCommit:"86ec240af8cbd1b60bcc4c03c20da9b98005b92e", GitTreeState:"clean", BuildDate:"2021-12-16T11:41:01Z", GoVersion:"go1.17.5", Compiler:"gc", Platform:"linux/amd64"}
+falconow@falconow:~$ 
+```
+
+
 
 
 
