@@ -303,6 +303,54 @@ Client Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.1", GitCom
 falconow@falconow:~$ 
 ```
 
+> Перенес файлы конфигов kubctl для подключния к minikube с сервера на ноутбук.  
+Проверим работу:  
+```
+falconow@falconow:~$ kubectl get pods --namespace=kube-system
+NAME                                  READY   STATUS    RESTARTS      AGE
+coredns-78fcd69978-zf6z8              1/1     Running   0             24m
+etcd-masterkube0                      1/1     Running   0             24m
+kube-apiserver-masterkube0            1/1     Running   0             24m
+kube-controller-manager-masterkube0   1/1     Running   0             24m
+kube-proxy-4ztvs                      1/1     Running   0             24m
+kube-scheduler-masterkube0            1/1     Running   0             24m
+storage-provisioner                   1/1     Running   1 (23m ago)   24m
+falconow@falconow:~$ 
+```
+
+>Проверим сервис приложения:
+```
+falconow@falconow:~$ kubectl get services
+NAME         TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+hello-node   LoadBalancer   10.104.209.213   <pending>     8080:32195/TCP   12m
+kubernetes   ClusterIP      10.96.0.1        <none>        443/TCP          25m
+falconow@falconow:~$ 
+```
+
+> Пробросил порт до приложения, проверям с помощью curl:
+
+```
+falconow@falconow:~/learning/devops-netology$ curl http://62.84.115.45:32195
+CLIENT VALUES:
+client_address=172.17.0.1
+command=GET
+real path=/
+query=nil
+request_version=1.1
+request_uri=http://62.84.115.45:8080/
+
+SERVER VALUES:
+server_version=nginx: 1.10.0 - lua: 10001
+
+HEADERS RECEIVED:
+accept=*/*
+host=62.84.115.45:32195
+user-agent=curl/7.68.0
+BODY:
+-no body in request-falconow@falconow:~/learning/devops-netology$
+```
+
+
 
 
 
